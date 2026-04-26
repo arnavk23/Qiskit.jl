@@ -171,6 +171,8 @@ function (cl::DelayInstructionClosure)(qubit::Integer, duration, unit::Union{QkD
         end
     end
     qk_circuit_delay(cl.qc, qubit, duration, unit)
+end
+
 struct CountOpsClosure
     qc::QuantumCircuit
 end
