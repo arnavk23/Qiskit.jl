@@ -28,6 +28,7 @@ Available read-only properties:
 
 The additional properties are methods:
 
+- `count_ops()` - returns a `Dict` of operation counts
 - `reset(qubit)`
 - `measure(qubit, clbit)`
 - `barrier(qubit1, qubit2, ...)`
@@ -130,6 +131,22 @@ function (cl::UnitaryInstructionClosure)(matrix::AbstractMatrix{<:Number}, qubit
     qk_circuit_unitary(cl.qc, matrix, qubits)
 end
 
+struct CountOpsClosure
+    qc::QuantumCircuit
+end
+
+"""
+    count_ops() -> Dict{String, Int}
+
+Return operation counts for the circuit.
+
+Each call to this function performs O(n) work to traverse the circuit.
+If you need to access counts for multiple operations, store the result in a variable.
+"""
+function (cl::CountOpsClosure)()::Dict{String, Int}
+    Dict(qk_circuit_count_ops(cl.qc))
+end
+
 struct QuantumCircuitData <: AbstractVector{CircuitInstruction}
     circuit::QuantumCircuit
 end
@@ -163,7 +180,7 @@ function Base.iterate(qcdata::QuantumCircuitData, state)
 end
 
 function Base.propertynames(obj::QuantumCircuit; private::Bool = false)
-    union(fieldnames(typeof(obj)), (:data, :num_qubits, :num_clbits, :num_instructions, :reset, :measure, :barrier, :unitary, :h, :id, :x, :y, :z, :p, :r, :rx, :ry, :rz, :s, :sdg, :sx, :sxdg, :t, :tdg, :u, :ch, :cx, :cy, :cz, :dcx, :ecr, :swap, :iswap, :cp, :crx, :cry, :crz, :cs, :csdg, :csx, :cu, :rxx, :ryy, :rzz, :rzx, :ccx, :ccz, :cswap, :rccx, :unitary, :rcccx))
+    union(fieldnames(typeof(obj)), (:data, :num_qubits, :num_clbits, :num_instructions, :count_ops, :reset, :measure, :barrier, :unitary, :h, :id, :x, :y, :z, :p, :r, :rx, :ry, :rz, :s, :sdg, :sx, :sxdg, :t, :tdg, :u, :ch, :cx, :cy, :cz, :dcx, :ecr, :swap, :iswap, :cp, :crx, :cry, :crz, :cs, :csdg, :csx, :cu, :rxx, :ryy, :rzz, :rzx, :ccx, :ccz, :cswap, :rccx, :unitary, :rcccx))
 end
 
 function Base.getproperty(qc::QuantumCircuit, sym::Symbol)
@@ -175,6 +192,8 @@ function Base.getproperty(qc::QuantumCircuit, sym::Symbol)
         return qk_circuit_num_clbits(qc)
     elseif sym === :num_instructions
         return qk_circuit_num_instructions(qc)
+    elseif sym === :count_ops
+        return CountOpsClosure(qc)
     elseif sym === :reset
         return ResetInstructionClosure(qc)
     elseif sym === :measure
