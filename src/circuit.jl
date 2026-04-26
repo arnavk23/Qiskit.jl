@@ -135,41 +135,7 @@ struct DelayInstructionClosure
     qc::QuantumCircuit
 end
 
-function (cl::DelayInstructionClosure)(qubit::Integer, duration, unit::Union{QkDelayUnit, String} = QkDelayUnit_S)::Nothing
-    # Handle Unitful quantities if available
-    if applicable(typeof(duration), :unit)
-        try
-            import Unitful
-            if typeof(duration) <: Unitful.Quantity
-                # Convert to seconds first, then to the specified unit
-                duration_in_seconds = uconvert(Unitful.s, duration).val
-                # Map unit strings to QkDelayUnit enum values
-                unit_map = Dict(
-                    "s" => QkDelayUnit_S,
-                    "ms" => QkDelayUnit_MS,
-                    "μs" => QkDelayUnit_US,
-                    "ns" => QkDelayUnit_NS,
-                    "ps" => QkDelayUnit_PS
-                )
-                if unit isa String && haskey(unit_map, unit)
-                    unit = unit_map[unit]
-                elseif unit isa String
-                    throw(ArgumentError("Unknown delay unit: $unit. Use 's', 'ms', 'μs', 'ns', or 'ps'."))
-                end
-                # Scale duration accordingly
-                scale_factors = Dict(
-                    QkDelayUnit_S => 1.0,
-                    QkDelayUnit_MS => 1000.0,
-                    QkDelayUnit_US => 1e6,
-                    QkDelayUnit_NS => 1e9,
-                    QkDelayUnit_PS => 1e12
-                )
-                duration = duration_in_seconds * scale_factors[unit]
-            end
-        catch
-            # Unitful not available or other error, proceed with raw duration
-        end
-    end
+function (cl::DelayInstructionClosure)(qubit::Integer, duration::Real, unit::QkDelayUnit = QkDelayUnit_S)::Nothing
     qk_circuit_delay(cl.qc, qubit, duration, unit)
 end
 
