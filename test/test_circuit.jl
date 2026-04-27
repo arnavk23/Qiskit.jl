@@ -26,12 +26,12 @@
     qc.reset(4)
     @test qc.num_instructions == 9
     instructions = [instruction.name for instruction in qc.data]
-    @test instructions == ["rz", "h", "xx_plus_yy", "delay", "unitary", "barrier", "measure", "reset"]
+    @test instructions == ["rz", "h", "xx_plus_yy", "delay", "delay", "unitary", "barrier", "measure", "reset"]
     expected_op_counts = Dict(
         "rz" => 1,
         "h" => 1,
         "xx_plus_yy" => 1,
-        "delay" => 1,
+        "delay" => 2,
         "unitary" => 1,
         "barrier" => 1,
         "measure" => 1,
