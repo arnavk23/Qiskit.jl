@@ -77,16 +77,16 @@
             qc = QuantumCircuit(2, 0)
             
             # Test with microsecond quantity
-            qc.delay(1, 10u"μs")
+            qc.delay(1, 10 * Unitful.μs)
             @test qc.num_instructions == 1
             @test qc.data[1].name == "delay"
             
             # Test with nanosecond quantity
-            qc.delay(2, 5u"ns")
+            qc.delay(2, 5 * Unitful.ns)
             @test qc.num_instructions == 2
             
             # Test with millisecond quantity (should convert appropriately)
-            qc.delay(1, 0.001u"s")
+            qc.delay(1, 0.001 * Unitful.s)
             @test qc.num_instructions == 3
         catch e
             if isa(e, ArgumentError) && contains(String(e), "Unitful")
