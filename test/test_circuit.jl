@@ -91,7 +91,7 @@
         catch e
             if isa(e, ArgumentError) && contains(String(e), "Unitful")
                 # Unitful not available, skip this test
-                @test_skip false "Unitful not available"
+                @test_skip false
             else
                 rethrow(e)
             end
