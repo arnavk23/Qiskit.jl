@@ -69,4 +69,32 @@
         @test qk_circuit_get_instruction(qc, 2).params == [4.0]
         @test qk_circuit_get_instruction(qc, 5).clbits == [0]
     end
+    
+    @testset "Unitful support (if available)" begin
+        # Test Unitful support if the package is available
+        try
+            using Unitful
+            qc = QuantumCircuit(2, 0)
+            
+            # Test with microsecond quantity
+            qc.delay(1, 10u"μs")
+            @test qc.num_instructions == 1
+            @test qc.data[1].name == "delay"
+            
+            # Test with nanosecond quantity
+            qc.delay(2, 5u"ns")
+            @test qc.num_instructions == 2
+            
+            # Test with millisecond quantity (should convert appropriately)
+            qc.delay(1, 0.001u"s")
+            @test qc.num_instructions == 3
+        catch e
+            if isa(e, ArgumentError) && contains(String(e), "Unitful")
+                # Unitful not available, skip this test
+                @test_skip false "Unitful not available"
+            else
+                rethrow(e)
+            end
+        end
+    end
 end
