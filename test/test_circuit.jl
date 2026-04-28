@@ -89,7 +89,7 @@
             qc.delay(1, 0.001 * Unitful.s)
             @test qc.num_instructions == 3
         catch e
-            if isa(e, ArgumentError) && contains(String(e), "Unitful")
+            if isa(e, ArgumentError) && occursin("Unitful", sprint(showerror, e))
                 # Unitful not available, skip this test
                 @test_skip false
             else
