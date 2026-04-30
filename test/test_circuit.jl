@@ -73,24 +73,59 @@
     @testset "Unitful support" begin
         try
             using Unitful
-            qc = QuantumCircuit(2, 0)
+            qc = QuantumCircuit(4, 0)
             
-            # Test with microsecond quantity
-            qc.delay(1, 10 * Unitful.μs)
+            # Test direct unit matching - each unit type should be handled explicitly
+            
+            # Second unit (s)
+            qc.delay(1, 1.5 * Unitful.s)
             @test qc.num_instructions == 1
             @test qc.data[1].name == "delay"
             
-            # Test with nanosecond quantity
-            qc.delay(2, 5 * Unitful.ns)
+            # Millisecond unit (ms)
+            qc.delay(2, 500 * Unitful.ms)
             @test qc.num_instructions == 2
             
-            # Test with millisecond quantity
-            qc.delay(1, 0.001 * Unitful.s)
+            # Microsecond unit (μs)
+            qc.delay(3, 10 * Unitful.μs)
             @test qc.num_instructions == 3
-
-            # Test with picosecond quantity
-            qc.delay(2, 1 * Unitful.ps)
+            
+            # Nanosecond unit (ns)
+            qc.delay(4, 5 * Unitful.ns)
             @test qc.num_instructions == 4
+            
+            # Picosecond unit (ps)
+            qc.delay(1, 100 * Unitful.ps)
+            @test qc.num_instructions == 5
+            
+            # Test fallback conversion for non-standard units (e.g., hours, days)
+            # These should convert to seconds and select appropriate unit
+            
+            # Hour to microsecond (>= 1e-6)
+            qc.delay(2, 0.001 * Unitful.u"hr")  # 3.6 seconds
+            @test qc.num_instructions == 6
+            
+            # Minute to millisecond (>= 1e-3)
+            qc.delay(3, 0.05 * Unitful.u"minute")  # 3 seconds
+            @test qc.num_instructions == 7
+            
+            # Millisecond via direct ms unit
+            qc.delay(4, 0.5 * Unitful.ms)
+            @test qc.num_instructions == 8
+            
+            # Test edge cases for conversion thresholds
+            # Just at 1e-3 boundary (1 ms)
+            qc.delay(1, 1e-3 * Unitful.s)
+            @test qc.num_instructions == 9
+            
+            # Just below 1e-3 boundary (0.999 ms)
+            qc.delay(2, 0.999e-3 * Unitful.s)
+            @test qc.num_instructions == 10
+            
+            # Very small value (picoseconds range)
+            qc.delay(3, 1e-12 * Unitful.s)
+            @test qc.num_instructions == 11
+            
         catch e
             if isa(e, ArgumentError) && occursin("Unitful", sprint(showerror, e))
                 # Unitful not available, skip this test
