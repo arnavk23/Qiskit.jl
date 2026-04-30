@@ -87,5 +87,16 @@
 
         @test qc.num_instructions == 11
         @test qc.data[1].name == "delay"
+        @test qc.data[1].params == [1.5]
+        @test qc.data[2].params == [500.0]
+        @test qc.data[3].params == [10.0]
+        @test qc.data[4].params == [5.0]
+        @test qc.data[5].params == [100.0]
+        @test isapprox(qc.data[6].params[1], 3.6; atol=0, rtol=0)
+        @test isapprox(qc.data[7].params[1], 3.0; atol=0, rtol=0)
+        @test qc.data[8].params == [0.5]
+        @test qc.data[9].params == [1.0]
+        @test isapprox(qc.data[10].params[1], 0.999; atol=0, rtol=0)
+        @test qc.data[11].params == [1.0]
     end
 end
