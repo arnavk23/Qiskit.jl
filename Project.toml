@@ -12,6 +12,9 @@ Qiskit_jll = "b54e8e98-f244-53b3-a8e8-4727a4907f76"
 [weakdeps]
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
+[extensions]
+QiskitUnitfulExt = "Unitful"
+
 [compat]
 Aqua = "0.8.14"
 Compat = "3.47, 4"

@@ -139,42 +139,6 @@ function (cl::DelayInstructionClosure)(qubit::Integer, duration::Real, unit::QkD
     qk_circuit_delay(cl.qc, qubit, duration, unit)
 end
 
-# Method for Unitful quantities when Unitful.jl is available
-function (cl::DelayInstructionClosure)(qubit::Integer, duration)::Nothing
-    # Check if Unitful is loaded
-    if isdefined(Main, :Unitful)
-        Unitful = Main.Unitful
-        if typeof(duration) <: Unitful.Quantity
-            # Convert to seconds
-            duration_s = Unitful.uconvert(Unitful.s, duration).val
-            
-            # Determine the appropriate unit based on magnitude
-            if duration_s >= 1
-                unit = QkDelayUnit_S
-                final_duration = duration_s
-            elseif duration_s >= 1e-3
-                unit = QkDelayUnit_MS
-                final_duration = duration_s * 1e3
-            elseif duration_s >= 1e-6
-                unit = QkDelayUnit_US
-                final_duration = duration_s * 1e6
-            elseif duration_s >= 1e-9
-                unit = QkDelayUnit_NS
-                final_duration = duration_s * 1e9
-            else
-                unit = QkDelayUnit_PS
-                final_duration = duration_s * 1e12
-            end
-            
-            qk_circuit_delay(cl.qc, qubit, final_duration, unit)
-            return nothing
-        end
-    end
-    
-    # If we get here, it's not a valid input type
-    throw(TypeError(:DelayInstructionClosure, "duration", Union{Real, "Unitful.Quantity"}, duration))
-end
-
 struct CountOpsClosure
     qc::QuantumCircuit
 end
