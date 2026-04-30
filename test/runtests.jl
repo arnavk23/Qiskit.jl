@@ -15,6 +15,13 @@ using Qiskit.C
 using Test
 using Aqua
 
+# Load Unitful if available (optional dependency)
+try
+    using Unitful
+catch
+    # Unitful not available, some tests will be skipped
+end
+
 @testset "Qiskit.jl" begin
     @testset "Code quality (Aqua.jl)" begin
         Aqua.test_all(Qiskit)

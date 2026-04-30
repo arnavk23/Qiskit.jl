@@ -70,9 +70,9 @@
         @test qk_circuit_get_instruction(qc, 5).clbits == [0]
     end
     
-    @testset "Unitful support" begin
-        try
-            using Unitful
+    # Unitful support tests - only run if Unitful is available
+    if isdefined(@__MODULE__, :Unitful)
+        @testset "Unitful support" begin
             qc = QuantumCircuit(4, 0)
             
             # Test direct unit matching - each unit type should be handled explicitly
@@ -125,14 +125,6 @@
             # Very small value (picoseconds range)
             qc.delay(3, 1e-12 * Unitful.s)
             @test qc.num_instructions == 11
-            
-        catch e
-            if isa(e, ArgumentError) && occursin("Unitful", sprint(showerror, e))
-                # Unitful not available, skip this test
-                @test_skip false
-            else
-                rethrow(e)
-            end
         end
     end
 end
