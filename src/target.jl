@@ -10,8 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import .C: QkTargetEntry, qk_target_entry_free, qk_target_entry_num_properties, qk_target_entry_add_property
+import .C: QkTargetEntry, qk_target_entry_free, qk_target_entry_num_properties as qk_target_entry_num_properties_c, qk_target_entry_add_property
 import .C: QkTarget, qk_target_free, qk_target_add_instruction
+import .C: qk_target_num_qubits as qk_target_num_qubits_c, qk_target_num_instructions as qk_target_num_instructions_c
 
 """
     TargetEntry
@@ -49,16 +50,13 @@ target_entry_measure()::TargetEntry =
 target_entry_reset()::TargetEntry =
     TargetEntry(@ccall(libqiskit.qk_target_entry_new_reset()::Ptr{QkTargetEntry}))
 
-function target_entry_fixed(operation::QkGate, params::AbstractVector{<:Real})::TargetEntry
-    if length(params) != qk_gate_num_params(gate)
-        throw(ArgumentError("Unexpected number of parameters for gate."))
-    end
+target_entry_fixed(operation::QkGate, params::AbstractVector{<:Real})::TargetEntry =
     TargetEntry(@ccall(libqiskit.qk_target_entry_new_fixed(operation::QkGate, params::Ref{Cdouble})::Ptr{QkTargetEntry}))
-end
 
-qk_target_entry_num_properties(obj::TargetEntry)::Int = qk_target_entry_num_properties(obj.ptr)
+qk_target_entry_num_properties(obj::TargetEntry)::Int =
+    qk_target_entry_num_properties_c(Ref(unsafe_load(obj.ptr)))
 
-qk_target_entry_add_property(target_entry::TargetEntry, args...) = qk_target_entry_add_property(target_entry.ptr, args...)
+qk_target_entry_add_property(target_entry::TargetEntry, args...) = qk_target_entry_add_property(Ref(unsafe_load(target_entry.ptr)), args...)
 
 function Base.propertynames(obj::TargetEntry; private::Bool = false)
     union(fieldnames(typeof(obj)), (:num_properties,))
@@ -127,11 +125,11 @@ function Base.copy(obj::Target)::Target
     Target(@ccall(libqiskit.qk_target_copy(obj.ptr::Ref{QkTarget})::Ptr{QkTarget}))
 end
 
-qk_target_num_qubits(obj::Target) =
-    qk_target_num_qubits(obj.ptr)
+qk_target_num_qubits(obj::Target)::Int =
+    qk_target_num_qubits_c(Ref(unsafe_load(obj.ptr)))
 
-qk_target_num_instructions(obj::Target) =
-    qk_target_num_instructions(obj.ptr)
+qk_target_num_instructions(obj::Target)::Int =
+    qk_target_num_instructions_c(Ref(unsafe_load(obj.ptr)))
 
 #qk_target_dt
 
@@ -164,7 +162,7 @@ function Base.show(io::IO, obj::Target)
 end
 
 function qk_target_add_instruction(target::Target, entry::TargetEntry)::Nothing
-    qk_target_add_instruction(target.ptr, entry.ptr)
+    qk_target_add_instruction(Ref(unsafe_load(target.ptr)), Ref(unsafe_load(entry.ptr)))
     entry.ptr = C_NULL
     nothing
 end
