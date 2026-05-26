@@ -41,4 +41,9 @@ end
     show(io, obs5)
     output = String(take!(io))
     @test contains(output, "num_qubits=5")
+
+    qk_obs_free(obs5)
+    io = IOBuffer()
+    show(io, obs5)
+    @test String(take!(io)) == "SparseObservable()"
 end

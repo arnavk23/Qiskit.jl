@@ -59,6 +59,15 @@
         #QkTranspileOptions options = qk_transpiler_default_options()
         #options.seed = 42
         transpile_result = transpile(qc, target)
+        io = IOBuffer()
+        show(io, transpile_result)
+        @test contains(String(take!(io)), "TranspileResult")
+
+        qk_transpile_layout_free(transpile_result.layout)
+        io = IOBuffer()
+        show(io, transpile_result.layout)
+        @test String(take!(io)) == "TranspileLayout()"
+
         op_counts = qk_circuit_count_ops(transpile_result.circuit)
         @test length(op_counts) == 4
         op_count_set = Set([name for (name, _) in op_counts])

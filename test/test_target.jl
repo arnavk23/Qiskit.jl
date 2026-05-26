@@ -28,6 +28,11 @@
         show(io, target10)
         output = String(take!(io))
         @test contains(output, "num_qubits=10")
+
+        qk_target_free(target10)
+        io = IOBuffer()
+        show(io, target10)
+        @test String(take!(io)) == "Target()"
     end
 
     @testset "Base.show method for TargetEntry" begin
@@ -41,5 +46,10 @@
         output = String(take!(io))
         @test contains(output, "TargetEntry")
         @test contains(output, "num_properties")
+
+        qk_target_entry_free(entry)
+        io = IOBuffer()
+        show(io, entry)
+        @test String(take!(io)) == "TargetEntry()"
     end
 end

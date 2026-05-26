@@ -94,6 +94,11 @@
         output = String(take!(io))
         @test contains(output, "QuantumCircuit")
         @test contains(output, "num_qubits=3")
+
+        qk_circuit_free(qc_zero)
+        io = IOBuffer()
+        show(io, qc_zero)
+        @test String(take!(io)) == "QuantumCircuit()"
     end
     
     @testset "Unitful support" begin
