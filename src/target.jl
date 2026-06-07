@@ -12,8 +12,6 @@
 
 import .C: QkTargetEntry, qk_target_entry_free, qk_target_entry_num_properties, qk_target_entry_add_property
 import .C: QkTarget, qk_target_free, qk_target_add_instruction
-import .C: qk_target_num_qubits, qk_target_num_instructions
-import .C: check_exit_code
 
 """
     TargetEntry
@@ -51,8 +49,12 @@ target_entry_measure()::TargetEntry =
 target_entry_reset()::TargetEntry =
     TargetEntry(@ccall(libqiskit.qk_target_entry_new_reset()::Ptr{QkTargetEntry}))
 
-target_entry_fixed(operation::QkGate, params::AbstractVector{<:Real})::TargetEntry =
+function target_entry_fixed(operation::QkGate, params::AbstractVector{<:Real})::TargetEntry
+    if length(params) != qk_gate_num_params(gate)
+        throw(ArgumentError("Unexpected number of parameters for gate."))
+    end
     TargetEntry(@ccall(libqiskit.qk_target_entry_new_fixed(operation::QkGate, params::Ref{Cdouble})::Ptr{QkTargetEntry}))
+end
 
 qk_target_entry_num_properties(obj::TargetEntry)::Int = qk_target_entry_num_properties(obj.ptr)
 
