@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 import .C: QkTargetEntry, qk_target_entry_free, qk_target_entry_num_properties, qk_target_entry_add_property
-import .C: QkTarget, qk_target_free, qk_target_add_instruction
+import .C: QkTarget, qk_target_free, qk_target_num_qubits, qk_target_num_instructions, qk_target_add_instruction
 
 """
     TargetEntry
@@ -69,6 +69,22 @@ function Base.getproperty(obj::TargetEntry, sym::Symbol)
         return qk_target_entry_num_properties(obj)
     else
         return getfield(obj, sym)
+    end
+end
+
+function Base.show(io::IO, obj::TargetEntry)
+    if obj.ptr == C_NULL
+        print(io, "TargetEntry(NULL)")
+    else
+        print(io, "TargetEntry(; $(qk_target_entry_num_properties(obj)) properties)")
+    end
+end
+
+function Base.show(io::IO, ::MIME"text/plain", obj::TargetEntry)
+    if obj.ptr == C_NULL
+        print(io, "TargetEntry(NULL)")
+    else
+        print(io, "TargetEntry\n  properties: $(qk_target_entry_num_properties(obj))")
     end
 end
 
@@ -144,6 +160,22 @@ function Base.getproperty(obj::Target, sym::Symbol)
         return qk_target_num_instructions(obj)
     else
         return getfield(obj, sym)
+    end
+end
+
+function Base.show(io::IO, obj::Target)
+    if obj.ptr == C_NULL
+        print(io, "Target(NULL)")
+    else
+        print(io, "Target($(qk_target_num_qubits(obj)); $(qk_target_num_instructions(obj)) instructions)")
+    end
+end
+
+function Base.show(io::IO, ::MIME"text/plain", obj::Target)
+    if obj.ptr == C_NULL
+        print(io, "Target(NULL)")
+    else
+        print(io, "Target with $(qk_target_num_qubits(obj)) qubits\n  instructions: $(qk_target_num_instructions(obj))")
     end
 end
 

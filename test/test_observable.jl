@@ -25,3 +25,26 @@ obs = SparseObservable(5)
     @test qk_bitterm_label(QkBitTerm_Zero) == '0'
     @test qk_bitterm_label(QkBitTerm_One) == '1'
 end
+
+@testset "Base.show" begin
+    obs = SparseObservable(3)
+
+    # Compact form
+    io = IOBuffer()
+    show(io, obs)
+    @test String(take!(io)) == "SparseObservable(3; 0 terms)"
+
+    # text/plain form for REPL display
+    io = IOBuffer()
+    show(io, MIME"text/plain"(), obs)
+    output = String(take!(io))
+    @test startswith(output, "SparseObservable with 3 qubits")
+    @test contains(output, "terms: 0")
+
+    # NULL path
+    obs5 = SparseObservable(5)
+    qk_obs_free(obs5)
+    io = IOBuffer()
+    show(io, obs5)
+    @test String(take!(io)) == "SparseObservable(NULL)"
+end

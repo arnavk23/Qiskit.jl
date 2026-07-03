@@ -59,6 +59,15 @@
         #QkTranspileOptions options = qk_transpiler_default_options()
         #options.seed = 42
         transpile_result = transpile(qc, target)
+        io = IOBuffer()
+        show(io, transpile_result)
+        @test contains(String(take!(io)), "TranspileResult")
+
+        qk_transpile_layout_free(transpile_result.layout)
+        io = IOBuffer()
+        show(io, transpile_result.layout)
+        @test String(take!(io)) == "TranspileLayout(NULL)"
+
         op_counts = qk_circuit_count_ops(transpile_result.circuit)
         @test length(op_counts) == 4
         op_count_set = Set([name for (name, _) in op_counts])
@@ -73,5 +82,39 @@
                 @test inst.qubits[1] + 1 == inst.qubits[2]
             end
         end
+    end
+
+    @testset "Base.show for TranspileResult and TranspileLayout" begin
+        target = Qiskit.Target(2)
+        h_entry = Qiskit.target_entry_gate(QkGate_H)
+        qk_target_entry_add_property(h_entry, [1], 0.0, 0.0)
+        qk_target_entry_add_property(h_entry, [2], 0.0, 0.0)
+        qk_target_add_instruction(target, h_entry)
+
+        qc = QuantumCircuit(2)
+        qc.h(1)
+        result = transpile(qc, target)
+
+        # Compact show (used when nested inside another object's display)
+        io = IOBuffer()
+        show(io, result)
+        output = String(take!(io))
+        @test startswith(output, "TranspileResult(")
+        @test contains(output, "QuantumCircuit(")
+        @test contains(output, "TranspileLayout(")
+
+        # text/plain form for REPL display
+        io = IOBuffer()
+        show(io, MIME"text/plain"(), result)
+        output = String(take!(io))
+        @test startswith(output, "TranspileResult:")
+        @test contains(output, "circuit:")
+        @test contains(output, "layout:")
+
+        # TranspileLayout NULL path (after ownership is transferred)
+        qk_transpile_layout_free(result.layout)
+        io = IOBuffer()
+        show(io, result.layout)
+        @test String(take!(io)) == "TranspileLayout(NULL)"
     end
 end
