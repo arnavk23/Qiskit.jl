@@ -22,6 +22,7 @@ using Unitful
     end
     include("test_circuit.jl")
     include("test_operations.jl")
+    include("test_parameter.jl")
     include("test_target.jl")
     include("test_transpiler.jl")
     include("test_observable.jl")

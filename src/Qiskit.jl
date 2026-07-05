@@ -20,6 +20,7 @@ libdir = joinpath(@__DIR__, "..", "lib")
 include(joinpath(libdir, "LibQiskit.jl"))
 
 include("c_exit_code.jl")
+include("c_param.jl")
 include("c_circuit.jl")
 include("c_target.jl")
 include("c_transpile.jl")
@@ -33,5 +34,7 @@ include("circuit.jl")
 include("target.jl")
 include("transpile.jl")
 include("observable.jl")
+
+export Parameter
 
 end # module Qiskit
