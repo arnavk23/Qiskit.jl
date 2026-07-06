@@ -75,8 +75,7 @@ jobs:
       - uses: julia-actions/julia-downgrade-compat@v2
         with:
           projects: '.'
-          mode: forcedeps
-          skip: Libdl,Test
+          mode: deps
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
   docs:
