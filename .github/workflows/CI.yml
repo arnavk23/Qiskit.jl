@@ -70,12 +70,14 @@ jobs:
       - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
         with:
-          version: '1.10'
+          version: '1.12'
           arch: x64
       - uses: julia-actions/julia-downgrade-compat@v2
         with:
           projects: '.'
-          mode: deps
+          mode: forcedeps
+          skip: Libdl,Test
+          julia_version: '1.10'
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
   docs:
