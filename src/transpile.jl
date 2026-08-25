@@ -148,7 +148,7 @@ const TranspileResult = @NamedTuple begin
 end
 
 TranspileResult(circuit::QuantumCircuit, layout::TranspileLayout) =
-# Call the NamedTuple constructor
+    # Call the NamedTuple constructor
     TranspileResult((circuit, layout))
 
 function Base.show(io::IO, result::TranspileResult)
